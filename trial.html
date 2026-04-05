@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galassia-5 Software-Hardware Integration Framework</title>
+  <style>
+    :root{
+      --bg:#041d34;
+      --panel:#082a47;
+      --panel2:#0b3558;
+      --accent:#12e6ff;
+      --accent2:#86ff76;
+      --text:#e8f7ff;
+      --muted:#b3d7e6;
+      --border:rgba(18,230,255,.22);
+      --shadow:0 18px 50px rgba(0,0,0,.28);
+      --radius:22px;
+      --max:1180px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(18,230,255,.12), transparent 25%),
+        radial-gradient(circle at left, rgba(134,255,118,.08), transparent 20%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.7;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 20px 80px}
+    .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:22px; align-items:stretch; margin-top:18px;}
+    .hero-card, .card, .toc, .metric, .timeline-item, .image-placeholder{
+      background:linear-gradient(180deg, rgba(11,53,88,.92), rgba(8,42,71,.92));
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+    .hero-card{padding:34px}
+    .eyebrow{letter-spacing:.18em; text-transform:uppercase; color:var(--accent2); font-size:.78rem; font-weight:700}
+    h1,h2,h3{margin:0 0 12px}
+    h1{font-size:clamp(2rem, 4.6vw, 4.3rem); line-height:.95; color:var(--accent)}
+    h2{font-size:clamp(1.5rem, 2.7vw, 2.5rem); color:var(--accent)}
+    h3{font-size:1.1rem}
+    p{margin:0 0 14px; color:var(--text)}
+    .muted{color:var(--muted)}
+    .hero-side{padding:24px; display:flex; flex-direction:column; gap:16px;}
+    .image-shell{
+      min-height:240px;
+      border-radius:20px;
+      background:
+        linear-gradient(135deg, rgba(18,230,255,.16), rgba(134,255,118,.08)),
+        radial-gradient(circle at 30% 20%, rgba(18,230,255,.4), transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(134,255,118,.2), transparent 26%),
+        #05213c;
+      border:1px solid var(--border);
+      overflow:hidden;
+      position:relative;
+      display:flex;
+      align-items:flex-end;
+      padding:18px;
+    }
+    .image-shell::after{
+      content:"Add hero image / architecture figure here";
+      position:absolute; inset:auto 18px 18px 18px;
+      color:rgba(232,247,255,.82);
+      font-size:.95rem;
+    }
+    .meta-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:18px 0 0;}
+    .metric{padding:18px}
+    .metric .num{font-size:1.6rem; font-weight:800; color:var(--accent)}
+    .metric .lbl{font-size:.9rem; color:var(--muted)}
+    .toc{margin:22px 0; padding:18px 18px 10px; position:sticky; top:10px; z-index:20; backdrop-filter:blur(10px);}
+    .toc .links{display:flex; flex-wrap:wrap; gap:10px}
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px; background:rgba(18,230,255,.11); border:1px solid var(--border); color:var(--text); font-weight:600; font-size:.95rem;}
+    .section{margin:22px 0; padding:26px; background:linear-gradient(180deg, rgba(11,53,88,.88), rgba(8,42,71,.88)); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+    .card{padding:18px}
+    .kpi{font-size:1.9rem; color:var(--accent); font-weight:800}
+    ul{margin:10px 0 0 18px; color:var(--text)}
+    li{margin:7px 0}
+    table{width:100%; border-collapse:collapse; margin-top:10px; overflow:hidden}
+    th,td{border-bottom:1px solid rgba(18,230,255,.16); padding:12px 10px; text-align:left; vertical-align:top}
+    th{color:var(--accent); font-size:.92rem}
+    .note{border-left:4px solid var(--accent); padding:14px 16px; background:rgba(18,230,255,.08); border-radius:12px; margin:12px 0 0;}
+    .timeline{display:grid; gap:14px; margin-top:12px}
+    .timeline-item{padding:18px}
+    .timeline-item .when{color:var(--accent2); font-weight:800; font-size:.9rem; margin-bottom:6px}
+    .footer{opacity:.85; font-size:.92rem; margin-top:24px}
+    .small{font-size:.92rem}
+    code{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:6px}
+    .tagrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .tag{padding:8px 12px; border-radius:999px; background:rgba(134,255,118,.1); border:1px solid rgba(134,255,118,.25); color:#dfffe0; font-size:.9rem}
+    .image-placeholder{
+      min-height:220px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:18px;
+      border-style:dashed;
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
+    }
+    .figure-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:14px}
+    .caption{margin-top:8px; font-size:.9rem; color:var(--muted)}
+    .compare-table td:first-child{font-weight:700; color:#fff}
+    .quote{
+      background:rgba(18,230,255,.08);
+      border-left:4px solid var(--accent);
+      padding:14px 16px;
+      border-radius:12px;
+      margin:12px 0 0;
+    }
+    @media (max-width: 900px){
+      .hero,.grid-2,.grid-3,.figure-grid{grid-template-columns:1fr}
+      .meta-grid{grid-template-columns:1fr}
+      .toc{position:relative; top:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero" id="top">
+      <div class="hero-card">
+        <div class="eyebrow">Galassia-5 Final Project Report</div>
+        <h1>Software–Hardware Integration Framework for Galassia-5 Subsystems</h1>
+        <p class="muted">Developing and validating the communication and processing pipeline for camera payload integration, SpaceWire support, AI inference, board bring-up, and Ku-band radio integration.</p>
+        <p><strong>Presenter / Author:</strong> Bryan Kuan<br><strong>Module:</strong> CDE4301 Final Report</p>
+        <div class="meta-grid">
+          <div class="metric"><div class="num">4.3–4.5 s</div><div class="lbl">measured pipeline time per image</div></div>
+          <div class="metric"><div class="num">&lt; 20 s</div><div class="lbl">mission timing requirement satisfied</div></div>
+          <div class="metric"><div class="num">48 tiles</div><div class="lbl">per image due to 800×800 HEF input</div></div>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="image-shell">
+          <div>
+            <div class="eyebrow">Suggested hero visual</div>
+            <h3 style="color:#fff;margin-top:8px">Satellite / payload / board image</h3>
+            <p class="small">Replace this with your best spacecraft, payload board, or pipeline image.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>What this report covers</h3>
+          <p class="small muted">Camera integration, Ethernet setup, SpaceWire verification, Hailo YOLOv8 timing tests, operating-system bring-up, hardware comparison, and future work for Ku-band radio integration.</p>
+          <div class="tagrow">
+            <span class="tag">Camera pipeline</span>
+            <span class="tag">SpaceWire</span>
+            <span class="tag">Hailo-8L</span>
+            <span class="tag">Timing tests</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="toc" aria-label="Table of contents">
+      <strong style="display:block;margin-bottom:10px;color:var(--accent)">Table of Contents</strong>
+      <div class="links">
+        <a class="pill" href="#abstract">Abstract</a>
+        <a class="pill" href="#introduction">Introduction</a>
+        <a class="pill" href="#problem">Problem Statement</a>
+        <a class="pill" href="#objectives">Objectives</a>
+        <a class="pill" href="#architecture">System Architecture</a>
+        <a class="pill" href="#integration">Integration Work</a>
+        <a class="pill" href="#software-env">Software Environment</a>
+        <a class="pill" href="#timing">Timing Analysis</a>
+        <a class="pill" href="#comparison">Hailo vs CPU / ZES vs Raspberry Pi</a>
+        <a class="pill" href="#testing">Testing & Results</a>
+        <a class="pill" href="#limitations">Limitations</a>
+        <a class="pill" href="#future">Future Work</a>
+        <a class="pill" href="#conclusion">Conclusion</a>
+      </div>
+    </nav>
+
+    <section class="section" id="abstract">
+      <h2>Abstract</h2>
+      <p>This project developed and validated a software-hardware integration framework for the Galassia-5 satellite payload subsystem. The main objective was to connect camera payloads, onboard processing hardware, SpaceWire communication, and AI-based image inference into one testable end-to-end pipeline. The work focused on the ZSOM-F01 payload computer with Hailo-8L support, together with camera integration through Ethernet and SpaceWire, Ku-band radio integration through Python-based control, and timing validation of the full image-processing workflow.</p>
+      <p>The pipeline processes images captured by the camera, stores them in a directory, splits them into 48 tiles to match the 800×800 input requirement of the Hailo HEF model, runs YOLOv8-based inference, converts detections to coordinate output, and generates CSV results. Benchmark testing showed that the system completes the pipeline in approximately 4.3 to 4.5 seconds per image, which is comfortably below the mission requirement of 20 seconds per image. fileciteturn0file0</p>
+      <p>The project also addressed practical board bring-up issues. The ZSOM-F01 board originally ran PetaLinux, but limitations in internet access, package management, and day-to-day development made an Ubuntu-based root filesystem more suitable during development. The work therefore included boot configuration updates, SD card partitioning, filesystem replacement, and hardware/software environment adjustments.</p>
+    </section>
+
+    <section class="section" id="introduction">
+      <h2>Introduction</h2>
+      <p>Galassia-5 is a satellite project made up of multiple independently developed subsystems, including camera payloads, onboard processing, communication interfaces, and radio hardware. The main engineering challenge was to integrate these parts into a single software-hardware pipeline that could be tested, verified, and prepared for mission use.</p>
+      <p>This project focused on the payload side of the system. The payload computer had to communicate with camera hardware, run inference using Hailo-8L, support SpaceWire-based communication for a camera that only supports SpaceWire, and integrate Ku-band radio control through Python. The project also had to meet a strict mission timing requirement: the pipeline for each image could not exceed 20 seconds.</p>
+      <p>A further challenge was that the final flight camera was not fully fixed at the time of development. Because of this, the project needed to support more than one camera path and prove that both could be integrated into the same overall framework.</p>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert project overview image here<br><span class="small">Example: payload system overview or mission architecture diagram</span></div>
+          <div class="caption">Figure 1: High-level project overview.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert semester-1 presentation screenshot here<br><span class="small">Example: motivation or initial concept slide</span></div>
+          <div class="caption">Figure 2: Early-stage project context.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="problem">
+      <h2>Problem Statement</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Engineering problem</h3>
+          <p>Subsystems were developed separately, creating a risk of interface mismatch, delayed debugging, and long final integration cycles. The project therefore needed a common integration layer that could connect camera input, board communication, and inference output in a controlled way.</p>
+        </div>
+        <div class="card">
+          <h3>Mission constraint</h3>
+          <p>The image-processing pipeline must complete in less than 20 seconds per image. The tested pipeline achieved approximately 4.3–4.5 seconds per image, leaving a strong performance margin for mission use. fileciteturn0file0</p>
+        </div>
+      </div>
+      <p>In practical terms, the problem was not just to make the camera communicate or to make the AI model run. The real task was to connect all of the relevant subsystems so the payload path could be demonstrated in a realistic and mission-relevant environment. This included board bring-up, SDK setup, hardware networking, camera access from Python, and end-to-end timing measurement.</p>
+      <div class="quote">This timing margin is one of the strongest outcomes in the project because it proves the pipeline is not just functional, but also mission-acceptable.</div>
+    </section>
+
+    <section class="section" id="objectives">
+      <h2>Project Objectives</h2>
+      <div class="grid-3">
+        <div class="card"><h3>Camera integration</h3><p class="small muted">Integrate Atlas Lucid and Skunkworks camera paths through the payload computer.</p></div>
+        <div class="card"><h3>SpaceWire validation</h3><p class="small muted">Support the Siemera camera path and verify communication through SpaceWire.</p></div>
+        <div class="card"><h3>AI pipeline timing</h3><p class="small muted">Measure end-to-end performance for tiling, Hailo inference, and CSV output.</p></div>
+      </div>
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card"><h3>Platform bring-up</h3><p class="small muted">Move the board from a restrictive PetaLinux development image to an Ubuntu-based filesystem for easier testing and integration.</p></div>
+        <div class="card"><h3>Hardware choice justification</h3><p class="small muted">Explain why Hailo is preferred over CPU-only inference and why the ZSOM-F01 board is the correct payload computer for Galassia-5.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="architecture">
+      <h2>System Architecture</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Pipeline flow</h3>
+          <p class="small">Camera image capture → image saved to directory → image tiled into 48 sections → Hailo YOLOv8 inference → detections converted to coordinates → CSV output generated.</p>
+          <p class="small">The 48-tile split exists because the HEF model expects an 800×800 input size.</p>
+          <p class="small">The output CSV provides a compact format for downstream use and makes it easier to compare detections across tests.</p>
+        </div>
+        <div class="card">
+          <h3>Hardware role</h3>
+          <p class="small">The ZSOM-F01 payload computer acts as the central integration platform. It is the mission-representative hardware, so it is the most valid target for final verification. The board ties together camera control, Python software execution, Hailo acceleration, and communication with other payload subsystems.</p>
+        </div>
+      </div>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert block diagram here<br><span class="small">Show camera → ZSOM-F01 → Hailo → CSV pipeline</span></div>
+          <div class="caption">Figure 3: End-to-end payload pipeline architecture.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert board / wiring photo here<br><span class="small">Show payload computer, camera interface, or test setup</span></div>
+          <div class="caption">Figure 4: Hardware integration setup.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="integration">
+      <h2>Integration Work Completed</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="when">Camera payload integration</div>
+          <p>Integrated the camera input path with the payload computer and the Hailo-8L processing chain. For the Skunkworks camera, the Ethernet connection required careful network setup because the board has two Ethernet ports and only <code>eth0</code> could be used reliably. DHCP was configured so that the camera and the ZSOM-F01 board shared the same network and could communicate correctly.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="when">SDK and Python access</div>
+          <p>Installed and configured the Lucid Atlas camera SDK, downloaded the required drivers, and set up Python access so the camera could be controlled from the payload computer using the SDK interface, including <code>arena_api.system import system</code>. This step was essential because it made the camera accessible from the same software environment used for the rest of the pipeline.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="when">SpaceWire node integration</div>
+          <p>Built and tested the SpaceWire path to support the Siemera camera, which only supports SpaceWire. Although only one camera may ultimately be flown, supporting both paths reduced mission risk and gave the project a more flexible integration architecture.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="when">AI inference pipeline</div>
+          <p>Implemented image tiling, YOLOv8 inference, duplicate-detection handling, and CSV output generation. The pipeline also supports timing comparison between single-image and batch-style processing, which was used to identify the dominant runtime costs.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="when">Ku-band radio integration</div>
+          <p>Integrated the Ku-band radio into the pipeline through Python-based control calls, extending the same scripting-based workflow used for the camera subsystem. This showed that the software control approach could scale across multiple mission subsystems.</p>
+        </div>
+      </div>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert camera SDK screenshot here<br><span class="small">Show driver setup, Python camera call, or camera output</span></div>
+          <div class="caption">Figure 5: Camera SDK and Python integration.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert SpaceWire screenshot here<br><span class="small">Show link status, simulation, or node communication</span></div>
+          <div class="caption">Figure 6: SpaceWire integration result.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="software-env">
+      <h2>Software Environment and Board Bring-Up</h2>
+      <p>The ZSOM-F01 board was originally based on a PetaLinux image, but this created practical limitations during development, especially around internet access, package management, and command-line convenience. To make development easier, the board was migrated to an Ubuntu-based root filesystem for testing and integration work.</p>
+      <p>The bring-up process required editing the boot and root partitions on the SD card. After applying the patch and fixing the <code>system-user.dtsi</code> file, the boot image was rebuilt and the required boot files were copied into the boot partition. The root partition was then replaced with the Ubuntu filesystem, while keeping the required <code>modules</code> and <code>firmware</code> directories so the system could still boot correctly.</p>
+      <p>Because the files in the SD card partitions were protected, root-level access was needed to copy the Ubuntu filesystem into place. A boot configuration file also had to be updated so that U-Boot would mount and start the Ubuntu filesystem instead of the default PetaLinux root filesystem. In effect, the boot chain became: bootloader → U-Boot → kernel → Ubuntu filesystem.</p>
+      <p>This change made software development easier, but it also revealed a trade-off: Ubuntu was larger and ran hotter on the ZSOM-F01 board, so the project may need to return to PetaLinux for the final mission configuration. The current hardware notes also indicate that the USB on the existing PCB board is damaged, which prevents normal GUI booting and motivates a future redraw of the <code>top.xsa</code> hardware configuration for a replacement board.</p>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert boot flow diagram here<br><span class="small">Show PetaLinux → U-Boot → Ubuntu rootfs path</span></div>
+          <div class="caption">Figure 7: Boot and filesystem migration.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert partition layout screenshot here<br><span class="small">Show boot partition and root partition setup</span></div>
+          <div class="caption">Figure 8: SD card partition structure.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="timing">
+      <h2>Timing Analysis</h2>
+      <p>The timing study is the key evidence section of the report. The benchmark runs show that the pipeline stays well below the 20-second mission limit.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Measured value</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Average total time</td><td>≈ 4.48 s/image</td><td>Cold single-image benchmark</td></tr>
+          <tr><td>Average pipeline time</td><td>≈ 4.34 s/image</td><td>Warm split benchmark excluding model init</td></tr>
+          <tr><td>Model initialisation</td><td>≈ 0.41 s</td><td>One-time setup cost when reused</td></tr>
+          <tr><td>Tiling time</td><td>≈ 2.25 s/image</td><td>Main contributor to runtime</td></tr>
+          <tr><td>Inference time</td><td>≈ 2.08 s/image</td><td>Stable across tests</td></tr>
+        </tbody>
+      </table>
+      <p>The logged measurements show that the pipeline uses 48 tiles per image and that inference is the second largest contributor to runtime. The tiling stage is therefore the best place for future optimisation if further performance improvements are needed. The one-time model initialisation cost is small relative to the full processing time and becomes less important in batch-style processing. fileciteturn0file0</p>
+      <div class="quote">The report should explicitly state that the mission requirement is satisfied with a wide timing margin. fileciteturn0file0</div>
+    </section>
+
+    <section class="section" id="comparison">
+      <h2>Hailo vs CPU, and ZSOM-F01 vs Raspberry Pi</h2>
+      <p>A key design decision in this project was whether image inference should run on the CPU or on the Hailo-8L accelerator. The CPU-only approach was tested as a baseline, but the measured runtime was not suitable for mission use. On the Raspberry Pi test platform, CPU-based batch processing exceeded the 20-second per image limit at approximately 22 seconds per image, while single-image processing reached approximately 42 seconds per image. The CPU pipeline also terminated after several images because of insufficient memory. These results show that CPU-only inference is not viable for the Galassia-5 payload pipeline.</p>
+      <p>By contrast, Hailo-based inference provided a much better performance profile. On the ZSOM-F01 payload computer, the full pipeline completed in about 4.3 to 4.5 seconds per image, which is well below the 20-second mission requirement. The measured timing breakdown showed that tiling took approximately 2.25 seconds and inference took approximately 2.08 seconds, with only a small one-time model initialisation cost in warm runs. fileciteturn0file0</p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Why Hailo</h3>
+          <p>Hailo was selected because it provides fast, lightweight inference that fits the satellite payload constraint much better than CPU-only execution. It reduces inference time, keeps the pipeline within the timing budget, and avoids the resource pressure that appears when the same workload is executed entirely on a general-purpose CPU.</p>
+        </div>
+        <div class="card">
+          <h3>Why ZSOM-F01</h3>
+          <p>ZSOM-F01 was chosen because it is the mission-representative payload computer for Galassia-5. Raspberry Pi is useful as a development baseline, but it is not the final spacecraft computer. Therefore, the ZSOM-F01 plus Hailo combination is the correct final integration target.</p>
+        </div>
+      </div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Inference path</th>
+            <th>Typical result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Raspberry Pi</td><td>CPU only</td><td>~22 s/image batch, ~42 s/image single, memory issues</td></tr>
+          <tr><td>Raspberry Pi</td><td>Hailo</td><td>Faster than CPU, but still not the final mission platform</td></tr>
+          <tr><td>ZSOM-F01</td><td>Hailo</td><td>~4.3–4.5 s/image, meets requirement comfortably</td></tr>
+        </tbody>
+      </table>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert timing comparison chart here<br><span class="small">Show CPU vs Hailo vs platform comparisons</span></div>
+          <div class="caption">Figure 9: Timing comparison across platforms.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert benchmark log screenshot here<br><span class="small">Show terminal output or plotted timing results</span></div>
+          <div class="caption">Figure 10: Benchmark evidence for Hailo pipeline timing.</div>
+        </div>
+      </div>
+      <p>The correct conclusion is therefore not simply that Hailo is faster. The stronger conclusion is that Hailo on the ZSOM-F01 board is both mission-relevant and mission-compliant, while CPU-only inference on the Raspberry Pi exceeds the acceptable runtime and consumes too much memory. That makes the Hailo-based ZSOM-F01 configuration the right choice for the final report and the final system discussion.</p>
+    </section>
+
+    <section class="section" id="testing">
+      <h2>Testing and Results</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Single-image processing</h3>
+          <p class="small">Used to measure cold-start performance, including model loading overhead per image. This mode is useful for understanding the worst-case time for an isolated image.</p>
+        </div>
+        <div class="card">
+          <h3>Batch / warm processing</h3>
+          <p class="small">Used to measure reuse of the Hailo engine, reducing repeated initialisation overhead. This mode is more representative of sustained mission operation.</p>
+        </div>
+      </div>
+      <p style="margin-top:16px">The benchmark logs show the following important outcome: the system processes nine test images with an average total time around 4.3–4.5 seconds per image, and the mission requirement of less than 20 seconds per image is comfortably satisfied. fileciteturn0file0</p>
+      <p>Testing also showed that the main runtime cost comes from the tiling stage rather than the inference stage alone. This suggests that future optimisation should focus on image pre-processing if further performance improvement is needed. The CSV output confirms that detections can be written into a structured format suitable for downstream use and traceability.</p>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert CSV output screenshot here<br><span class="small">Show coordinates or sample detection output</span></div>
+          <div class="caption">Figure 11: Example CSV output.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert raw detection image here<br><span class="small">Show example of inference overlay / tiles</span></div>
+          <div class="caption">Figure 12: Sample inference result.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="limitations">
+      <h2>Limitations</h2>
+      <p>The project did have limitations, and these should be stated clearly in the report:</p>
+      <ul>
+        <li>the final flight camera choice was not fully fixed;</li>
+        <li>not every subsystem may have reached final flight-grade integration;</li>
+        <li>Ubuntu was useful for development but is heavier and hotter than PetaLinux;</li>
+        <li>the current PCB has damaged USB hardware, limiting normal GUI boot use;</li>
+        <li>more timing comparisons could be useful if another board such as Raspberry Pi 5 is available;</li>
+        <li>the Ku-band subsystem may still need additional finalisation depending on mission scope.</li>
+      </ul>
+      <p>These limitations do not weaken the project. They make the report more credible because they show what still needs to be done and where the engineering trade-offs lie.</p>
+    </section>
+
+    <section class="section" id="future">
+      <h2>Future Work</h2>
+      <ul>
+        <li>finalise the flight camera selection;</li>
+        <li>complete any remaining Ku-band radio integration;</li>
+        <li>validate the selected configuration on the final mission hardware;</li>
+        <li>test timing on a Raspberry Pi 5 or development PC only if a comparison is useful;</li>
+        <li>return to PetaLinux for the final image if system size or heat becomes an issue;</li>
+        <li>refine the <code>top.xsa</code> hardware configuration for future board revisions;</li>
+        <li>improve logging, recovery, and robustness in the pipeline.</li>
+      </ul>
+      <div class="figure-grid">
+        <div>
+          <div class="image-placeholder">Insert future-work roadmap here<br><span class="small">Show what is left after final semester</span></div>
+          <div class="caption">Figure 13: Proposed future work roadmap.</div>
+        </div>
+        <div>
+          <div class="image-placeholder">Insert semester timeline here<br><span class="small">Show work completed across semesters</span></div>
+          <div class="caption">Figure 14: Project timeline.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="conclusion">
+      <h2>Conclusion</h2>
+      <p>This project successfully developed a software-hardware integration framework for the Galassia-5 satellite payload subsystem. The work covered camera integration, SpaceWire support, Ku-band radio control, AI inference, OS bring-up, and end-to-end timing validation. The final benchmark results show that the image-processing pipeline runs in approximately 4.3 to 4.5 seconds per image, which is well within the 20-second mission requirement. fileciteturn0file0</p>
+      <p>The project therefore makes a clear contribution: it shows that the Galassia-5 payload pipeline can be integrated, tested, and validated on mission-relevant hardware, while also documenting the technical trade-offs and remaining work needed for final deployment. Hailo was the correct inference choice because it enables practical real-time performance. ZSOM-F01 was the correct platform choice because it is the actual mission payload computer and gives the most meaningful result for final integration.</p>
+      <p class="footer">Use this page as the main GitHub Pages report. Then add your diagrams, benchmark screenshots, and references to make it look polished and complete.</p>
+    </section>
+  </div>
+</body>
+</html>
